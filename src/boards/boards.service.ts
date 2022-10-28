@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Board, BoardStatus } from './board.model';
 import { v1 as uuid } from 'uuid';
+import { CreateBoardDto } from './dto/create-board.dto';
 
 @Injectable()
 export class BoardsService {
@@ -35,7 +36,9 @@ export class BoardsService {
     /*
         게시글 생성 API Part. 1-2
     */
-   createBoard(title: string, description: string){
+    /*
+    // dto 사용 x
+    createBoard(title: string, description: string){
         const board: Board = {
             // uuid 모듈을 불러와 로컬에서 유니크한 id값으로 지정
             id: uuid(),
@@ -49,4 +52,48 @@ export class BoardsService {
         return board;
 
    }
+   */
+   createBoard(createBoaradDto: CreateBoardDto){
+
+        const {title, description} = createBoaradDto;
+        const board: Board = {
+            // uuid 모듈을 불러와 로컬에서 유니크한 id값으로 지정
+            id: uuid(),
+            title,
+            description,
+            status: BoardStatus.PUBLIC
+        }
+
+        // 생성된 게시글 정보를 return 한다.
+        this.boards.push(board);
+        return board;
+    }
+
+
+    /*
+        특정 ID 게시글 조회 API Part. 1-3
+    */
+   getBoardById(id: string): Board{
+       // 만약 DB랑 연동이 된다면, DB에 대한 쿼리문을 만들고, id에 대한 board를 조회 후 return
+       return this.boards.find((board) => board.id == id);
+   }
+
+   /*
+        특정 ID 게시글 삭제 API Part. 1-4
+   */
+   deleteBoard(id: string): void {
+       this.boards = this.boards.filter((board) => board.id !== id);
+    }
+
+    /*
+        특정 ID 게시글 상태 업데이트 API Part. 1-5
+    */
+   updateBoardStatus(id: string, status: BoardStatus): Board{
+        // 코드의 재활용 : 구현된 getBoardById() 메소드 사용
+        const board = this.getBoardById(id);
+        board.status = status
+        return board;
+   }
+
+
 }
