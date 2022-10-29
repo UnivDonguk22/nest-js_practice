@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Board, BoardStatus } from './board.model';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
 
 /*
     boards 모듈에 접근할 때의 엔드포인트 : '/boards' 이다.
@@ -35,8 +36,10 @@ export class BoardsController{
         게시글 생성 API Part. 1-2
     */
     // 엔드포인트 : '/'
-    // dto 사용
+    // dto 사용 & Pipe 사용해 Validation 처리
     @Post()
+    // Handler Pipe 이용
+    @UsePipes(ValidationPipe)
     createBoard(
         @Body() createBoaradDto: CreateBoardDto
         ): Board {
@@ -79,7 +82,8 @@ export class BoardsController{
    @Patch('/:id/status')
    updateBoardStatus(
        @Param('id') id: string,
-       @Body('status') status: BoardStatus
+       // Params-level Pipe을 이용해 커스텀 파이프 적용
+       @Body('status', BoardStatusValidationPipe) status: BoardStatus
    ): Board {
        return this.boardsService.updateBoardStatus(id, status);
    }
